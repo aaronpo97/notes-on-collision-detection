@@ -1,0 +1,20 @@
+# Ignore LaTeX auxiliary files
+*.aux
+*.bit
+*.blg
+*.bbl
+*.lof
+*.log
+*.lot
+*.glo
+*.glx
+*.gxg
+*.gxs
+*.idx
+*.ilg
+*.ind
+*.out
+.DS_Store
+main.fdb_latexmk
+main.fls
+main.synctex.gz
