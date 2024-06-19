@@ -7,7 +7,7 @@
 \usepackage{color}
 \usepackage{mdframed}
 
-\renewcommand{\land}{\,\&\,}
+\renewcommand{\land}{\,\,\textrm{\textbf{AND}}\,\,}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -174,7 +174,9 @@ bool checkCollision(const Circle &c1, const Circle &c2) {
     \textbf{Listing 1:} \textit{Collision Detection for Bounding Circles in C++}
 \end{center}
 
-\subsubsection{Bounding Boxes}
+\newpage
+
+\subsubsection{Axis Aligned Bounding Boxes (AABB)}
 In 2D games, objects are often enclosed in rectangles known as bounding boxes.
 These are usually the smallest possible rectangle that completely encompasses
 the texture's width and height. However, this is not always the case, as some
@@ -186,6 +188,8 @@ calculations for line-line intersections. To simplify this, we can use
 something called an axis-aligned bounding box (AABB). An AABB is a rectangle
 that is aligned with the x and y axes, i.e. with sides parallel to the
 coordinate axes.
+
+\paragraph*{Point inside AABB}
 
 The simplest calculation for AABBs is to check whether a point is inside the
 rectangle. Given a point $p$ and a rectangle with corners $c_1$ and $c_2$, we
@@ -201,29 +205,124 @@ This is done by the following formula:
     \end{aligned}
 \end{equation}
 
+If rather than two corners being given in favour of a width and height, the
+equation can be modified to:
+
+\begin{equation}
+    \begin{aligned}
+         & \textit{Point $P$ is inside rectangle with top left corner $c$, width $w$ and height $h$ if and only if:} \\
+         & (p.x > c.x) \land (p.x < c.x + w) \land (p.y > c.y) \land (p.y < c.y + h)
+    \end{aligned}
+\end{equation}
+
 broken down, the formula is evaluating four conditions:
 \begin{multicols}{2}
     \begin{enumerate}
         \item The point's x-coordinate is to the right of the left side of the rectangle.
-              \begin{equation}
-                  p.x > c_1.x
-              \end{equation}
+              \begin{equation*}
+                  \begin{aligned}
+                      p.x & > c_1.x \\
+                      p.x & > c.x
+                  \end{aligned}
+              \end{equation*}
 
         \item The point's x-coordinate is to the left of the right side of the rectangle.
-              \begin{equation}
-                  p.x < c_2.x
-              \end{equation}
+              \begin{equation*}
+                  \begin{aligned}
+                      p.x & < c_2.x   \\
+                      p.x & < c.x + w
+                  \end{aligned}
+              \end{equation*}
 
         \item The point's y-coordinate is above the bottom side of the rectangle.
-              \begin{equation}
-                  p.y > c_1.y
-              \end{equation}
+              \begin{equation*}
+                  \begin{aligned}
+                      p.y & > c_1.y \\
+                      p.y & > c.y
+                  \end{aligned}
+              \end{equation*}
 
         \item The point's y-coordinate is below the top side of the rectangle.
-              \begin{equation}
-                  p.y < c_2.y
-              \end{equation}
+              \begin{equation*}
+                  \begin{aligned}
+                      p.y & < c_2.y   \\
+                      p.y & < c.y + h
+                  \end{aligned}
+              \end{equation*}
     \end{enumerate}
 \end{multicols}
+\newpage
+\begin{mdframed}
+    \vspace{1em}
+
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{dkgreen},
+        stringstyle=\color{mauve},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=3,
+        xleftmargin=1em]
+#include "Vec2.h"
+#include <iostream>
+
+struct AABB {
+    Vec2 topLeft;
+    float width;
+    float height;
+};
+
+bool pointInsideAABB(const Vec2 &p, const AABB &aabb) {
+    const bool inside = p.x > aabb.topLeft.x &&
+                        p.x < aabb.topLeft.x + aabb.width &&
+                        p.y > aabb.topLeft.y &&
+                        p.y < aabb.topLeft.y + aabb.height;
+
+    return inside;
+}
+\end{lstlisting}
+
+\end{mdframed}
+\begin{center}
+    \textbf{Listing 2:} \textit{Point Inside AABB in C++}
+\end{center}
+
+\newpage
+\paragraph*{AABB Intersection}
+
+Determining if two AABBs intersect is a relatively simple task. Given two
+AABBs, one may be inclined to check for collision using the point inside AABB
+method. However, this is not the most efficient method, as it requires checking
+all four corners of one rectangle against the other rectangle. Instead, we can
+use an algorithm that detects both horizontal and vertical overlap.
+
+Given two AABBs with top left corners $c_1$ and $c_2$, we can determine if they
+overlap horizontally by checking if the right side of the first rectangle is to
+the right of the left side of the second rectangle and vice versa. This is done
+by the following formula:
+
+\begin{equation}
+    \begin{aligned}
+         & \textit{Rectangles overlap horizontally if and only if:}      \\
+         & (c_1.x < c_2.x + c_2.width) \land (c_1.x + c_1.width > c_2.x)
+    \end{aligned}
+\end{equation}
+
+In a similar manner, we can determine if the rectangles overlap vertically by
+checking if the top side of the first rectangle is above the bottom side of the
+second rectangle and vice versa. This is done by the following formula:
+
+\begin{equation}
+    \begin{aligned}
+         & \textit{Rectangles overlap vertically if and only if:} \\
+         & (c_1.y < c_2.y + c_2.h) \land (c_1.y + c_1.h > c_2.y)
+    \end{aligned}
+\end{equation}
 
 \end{document}
