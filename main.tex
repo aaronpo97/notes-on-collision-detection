@@ -1,36 +1,57 @@
-\documentclass[10pt,a4paper]{article}
-\renewcommand{\familydefault}{\sfdefault}
-\usepackage{svg}
-\usepackage{amssymb}
+\documentclass{article}
+
+% Geometry and layout
+\usepackage[margin=1.2in]{geometry}
+\usepackage[skip=10pt plus1pt, indent=0em]{parskip}
 \usepackage{multicol}
+\usepackage{titlesec}
+
+% Math and symbols
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{tikz}
+
+% Code listings
 \usepackage{listings}
 \usepackage{color}
-\usepackage{mdframed}
-
-\renewcommand{\land}{\,\,\textrm{\textbf{AND}}\,\,}
-
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
-\usepackage{amsmath}
-\usepackage{graphicx}
-\usepackage{tikz}
-\usepackage{amssymb}
-\usepackage[skip=10pt plus1pt, indent=0em]{parskip}
-\usepackage{titlesec}
+% Frames and boxes
+\usepackage{mdframed}
 
+% Theorems and remarks
+\newtheorem*{remark}{Remark}
+
+% Text and spacing
 \usepackage{setspace}
+\usepackage{blindtext}
+\makeatletter
+\renewcommand\maketitle{
+    \begin{center}
+        {\textbf{\LARGE{\@title}}} \\
+        \vspace{1em}
+        {\textbf{\Large{\@author}}} \\
+        \vspace{1em}
+        {\textbf{\large{\@date}}} \\
+        \vspace{2em}
+    \end{center}
+}
 
-\usepackage[margin=1in]{geometry}
+% Custom commands
+\renewcommand{\land}{\,\,\textrm{\textbf{AND}}\,\,}
 
 \author{Aaron Po}
-
+\title{Collision Detection and Collision Resolution}
+\date{\today}
 \begin{document}
-
-\title{Notes on Collision Detection and Collision Resolution}
-\date{July 2024}
-% \maketitle
+\maketitle
 
 \section{Introduction}
 This document contains notes on collision detection and collision resolution.
@@ -131,9 +152,7 @@ squares of the other two sides.
 If the distance between the two circles is less than the sum of their radii,
 then the circles intersect.
 
-\begin{mdframed}
-    \vspace{1em}
-
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
         belowskip=3mm,
         showstringspaces=false,
@@ -194,28 +213,21 @@ coordinate axes.
 The simplest calculation for AABBs is to check whether a point is inside the
 rectangle. Given a point $p$ and a rectangle with corners $c_1$ and $c_2$, we
 can determine if the point is inside the rectangle by checking if the point's x
-and y coordinates are within the rectangle's x and y coordinates.
+and y coordinates are within the rectangle's x and y coordinates. This is done
+by the following formula:
+\begin{center}
+    \textit{Point $p$ is inside rectangle with corners $c_1$ and $c_2$ if and only if:} \\
+    $(p.x > c_1.x) \land (p.x < c_2.x) \land (p.y > c_1.y) \land (p.y < c_2.y)$
+\end{center}
 
-This is done by the following formula:
+If the rectangle is defined by a top left corner $c$, width $w$, and height
+$h$, the equation can be modified to:
 
-\begin{equation}
-    \begin{aligned}
-         & \textit{Point $P$ is inside rectangle with corners $c_1$ and $c_2$ if and only if:} \\
-         & (p.x > c_1.x) \land (p.x < c_2.x) \land (p.y > c_1.y) \land (p.y < c_2.y)
-    \end{aligned}
-\end{equation}
-
-If rather than two corners being given in favour of a width and height, the
-equation can be modified to:
-
-\begin{equation}
-    \begin{aligned}
-         & \textit{Point $P$ is inside rectangle with top left corner $c$, width $w$ and height $h$ if and only if:} \\
-         & (p.x > c.x) \land (p.x < c.x + w) \land (p.y > c.y) \land (p.y < c.y + h)
-    \end{aligned}
-\end{equation}
-
-broken down, the formula is evaluating four conditions:
+\begin{center}
+    \textit{Point $p$ is inside rectangle with top left corner $c$, width $w$ and height $h$ if and only if:} \\
+    $(p.x > c.x) \land (p.x < c.x + w) \land (p.y > c.y) \land (p.y < c.y + h)$
+\end{center}
+When broken down, the formula is evaluating four conditions:
 \begin{multicols}{2}
     \begin{enumerate}
         \item The point's x-coordinate is to the right of the left side of the rectangle.
@@ -233,28 +245,30 @@ broken down, the formula is evaluating four conditions:
                       p.x & < c.x + w
                   \end{aligned}
               \end{equation*}
+    \end{enumerate}
+\end{multicols}
 
-        \item The point's y-coordinate is above the bottom side of the rectangle.
-              \begin{equation*}
-                  \begin{aligned}
-                      p.y & > c_1.y \\
-                      p.y & > c.y
-                  \end{aligned}
-              \end{equation*}
+\begin{multicols}{2}
+    \begin{enumerate}
+        \item[3.]The point's y-coordinate is above the bottom side of the rectangle.
+        \begin{equation*}
+            \begin{aligned}
+                p.y & > c_1.y \\
+                p.y & > c.y
+            \end{aligned}
+        \end{equation*}
 
-        \item The point's y-coordinate is below the top side of the rectangle.
-              \begin{equation*}
-                  \begin{aligned}
-                      p.y & < c_2.y   \\
-                      p.y & < c.y + h
-                  \end{aligned}
-              \end{equation*}
+        \item[4.] The point's y-coordinate is below the top side of the rectangle.
+            \begin{equation*}
+                \begin{aligned}
+                    p.y & < c_2.y   \\
+                    p.y & < c.y + h
+                \end{aligned}
+            \end{equation*}
     \end{enumerate}
 \end{multicols}
 \newpage
-\begin{mdframed}
-    \vspace{1em}
-
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
         belowskip=3mm,
         showstringspaces=false,
@@ -309,8 +323,8 @@ by the following formula:
 
 \begin{equation}
     \begin{aligned}
-         & \textit{Rectangles overlap horizontally if and only if:}      \\
-         & (c_1.x < c_2.x + c_2.width) \land (c_1.x + c_1.width > c_2.x)
+         & \textit{Rectangles overlap horizontally if and only if:} \\
+         & (c_1.x < c_2.x + c_2.w) \land (c_1.x + c_1.w > c_2.x)
     \end{aligned}
 \end{equation}
 
@@ -325,4 +339,220 @@ second rectangle and vice versa. This is done by the following formula:
     \end{aligned}
 \end{equation}
 
+Put all together, the AABBs overlap if and only if they overlap both
+horizontally and vertically. This is done by the following formula:
+
+\begin{equation}
+    % \begin{aligned}
+    %      & [(c_1.x < c_2.x + c_2.w) \land (c_1.x + c_1.w > c_2.x)]      \\
+    %      & \land[(c_1.y < c_2.y + c_2.h) \land (c_1.y + c_1.h > c_2.y)] \\
+    % \end{aligned}
+    \begin{aligned}
+         & \hspace{1.1em} (c_1.x < c_2.x + c_2.w) \\
+         & \land (c_1.x + c_1.w > c_2.x)          \\
+         & \land (c_1.y < c_2.y + c_2.h)          \\
+         & \land (c_1.y + c_1.h > c_2.y)
+    \end{aligned}
+\end{equation}
+
+Example of AABB intersection:
+\begin{center}
+    \begin{tikzpicture}
+        \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+
+            % Draw x and y axes with arrows
+            \draw[thick,->] (0,0) -- (18.5,0) node[anchor=north west] {\scriptsize x};
+            \draw[thick,->] (0,0) -- (0,18.5) node[anchor=south east] {\scriptsize y};
+
+            % Draw x-axis tick marks and labels
+            \foreach \x in {1,2,...,17}
+            \draw (\x,0.1) -- (\x,-0.1) node[anchor=south] {\scriptsize \x};
+
+            % Draw y-axis tick marks and labels
+            \foreach \y in {1,2,...,17}
+            \draw (0.1,\y) -- (-0.1,\y) node[anchor=east] {\scriptsize \y};
+
+            % Draw light gray grid lines
+            \foreach \x in {1,2,...,17}
+            \draw[lightgray,dashed] (\x,0) -- (\x,18);
+            \foreach \y in {1,2,...,17}
+            \draw[lightgray,dashed] (0,\y) -- (18,\y);
+
+            % First rectangle
+            \draw [black, thick] (3, 3) rectangle (8, 10);
+            \draw[black, thick, -] (3, 3) -- (8, 3) node[midway, below] {$w_1$};
+            \draw[black, thick, -] (3, 3) -- (3, 10) node[midway, left] {$h_1$};
+            % a point at the top left corner of the first rectangle
+
+            \filldraw [black] (3, 3) circle (4pt) node[anchor=north east] {$c_1$};
+            % Second rectangle
+            \draw [black, thick] (7, 6) rectangle (12, 16);
+            \draw[black, thick, -] (7, 6) -- (12, 6) node[midway, below] {$w_2$};
+            \draw[black, thick, -] (7, 6) -- (7, 16) node[midway, left]
+            {$h_2$};
+            % a point at the top left corner of the second rectangle
+            \filldraw [black] (7, 6) circle (4pt) node[anchor=north east] {$c_2$};
+
+        \end{scope}
+    \end{tikzpicture}
+\end{center}
+
+\begin{center}
+    \textbf{Figure 1:} \textit{AABB Intersection Example}
+
+\end{center}
+
+It is important to note that the above formula can only check whether or nor
+not two AABBs intersect. It does not provide information on how much they
+intersect. To determine the overlap, we can use a calculation that takes a
+center point and the width and height of the bounding box. This is done as
+follows:
+
+Given two AABBs with centers $c_1$ and $c_2$, widths $w_1$ and $w_2$, and
+heights $h_1$ and $h_2$,
+
+\begin{equation}
+    \begin{aligned}
+        \Delta                        & = \left\{ \left| c_1.x - c_2.x \right| , \left| c_1.y - c_2.y \right| \right\}                                                                                     \\
+        O                             & = \left\{ \left[ \left( \frac{w_1}{2} + \frac{w_2}{2} \right) - \Delta_x \right] , \left[ \left( \frac{h_1}{2} + \frac{h_2}{2} \right) - \Delta_y \right] \right\} \\
+        ( O_x > 0 ) \land ( O_y > 0 ) & \rightarrow \text{AABBs intersect}
+    \end{aligned}
+\end{equation}
+
+In this formula, the vector $\Delta$ represents the absolute difference between
+the center coordinates of the two AABBs along the $x$ and $y$ axes.
+
+The vector $O$ represents the overlap between the two AABBs along the $x$ and
+$y$ axes. The overlap along each axis is calculated by subtracting the
+difference between the centers from the sum of the half-widths (for the $x$
+axis) or half heights (for the $y$ axis) of the two AABBs. Here is an
+implementation of the AABB intersection algorithm in C++:
+
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{dkgreen},
+        stringstyle=\color{mauve},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=3,
+        xleftmargin=1em]
+
+#include "Vec2.h"
+#include <iostream>
+
+struct AABB {
+    Vec2 center;
+    float width;
+    float height;
+};
+
+bool checkAABBIntersection(const AABB &a, const AABB &b) {
+    const Vec2 delta = {
+        std::abs(a.center.x - b.center.x), 
+        std::abs(a.center.y - b.center.y)
+    };
+
+    const Vec2 overlap = {
+        (a.width / 2 + b.width / 2) - delta.x,
+        (a.height / 2 + b.height / 2) - delta.y
+    };
+    
+    const bool AABBIntersects = overlap.x > 0 && overlap.y > 0;
+
+    return AABBIntersects;
+}
+
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{dkgreen},
+        stringstyle=\color{mauve},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=3,
+        xleftmargin=1em]
+#include "Vec2.h"
+class CTransform : public Component {
+    public :
+        Vec2 position = {0, 0};
+        Vec2 previousPosition = {0, 0};
+        Vec2 scale = {1.0, 1.0};
+        float angle = 0;
+};
+
+class CBoundingBox : public Component {
+    public :
+        Vec2 size;
+        Vec2 halfSize;
+        CBoundingBox(const Vec2 &size) : size(size), halfSize(size / 2) {}
+};
+
+        \end{lstlisting}
+\end{mdframed}
+
+\newpage
+\section*{Appendix}
+\subsection*{Vec2.h}
+\vspace{1em}
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+    xleftmargin=1em]
+#ifndef VEC2_H
+#define VEC2_H
+
+class Vec2 {
+public:
+};
+    double x, y;
+
+    Vec2(float x = 0, float y = 0);
+
+    bool operator==(const Vec2 &rhs) const;
+    bool operator!=(const Vec2 &rhs) const;
+
+    Vec2 operator-(const Vec2 &rhs) const;
+    Vec2 operator+(const Vec2 &rhs) const;
+    Vec2 operator*(const float val) const;
+    Vec2 operator/(const float val) const;
+
+    void operator+=(const Vec2 &rhs);
+    void operator-=(const Vec2 &rhs);
+    void operator*=(const float val);
+    void operator/=(const float val);
+
+    Vec2  normalize();
+    float length() const;
+};
+
+#endif // VEC2_H
+\end{lstlisting}
+\end{mdframed}
 \end{document}
