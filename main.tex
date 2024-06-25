@@ -5,6 +5,10 @@
 \usepackage[skip=10pt plus1pt, indent=0em]{parskip}
 \usepackage{multicol}
 \usepackage{titlesec}
+\usepackage{csquotes}
+
+% Links and references
+\usepackage{hyperref}
 
 % Math and symbols
 \usepackage{amsmath}
@@ -28,6 +32,33 @@
 
 % Theorems and remarks
 \newtheorem*{remark}{Remark}
+
+\newcommand{\drawaxesgrid}[2]{
+    % Draw x and y axes with arrows
+    \draw[thick,->] (0,0) -- (#1,0) node[anchor=west] {\scriptsize x};
+    \draw[thick,->] (0,0) -- (0,#2) node[anchor=north] {\scriptsize y};
+
+    % Calculate the number of ticks based on sizes
+    \pgfmathtruncatemacro{\xtickstop}{#1-1}
+    \pgfmathtruncatemacro{\ytickstop}{#2-1}
+
+    % a point at the origin (0, 0) 
+    \filldraw [black] (0, 0) circle (5pt) {};
+
+    % Draw x-axis tick marks and labels
+    \foreach \x in {1,...,\xtickstop}
+    \draw (\x,0.1) -- (\x,-0.1) node[anchor=south] {\scriptsize \x};
+
+    % Draw y-axis tick marks and labels
+    \foreach \y in {1,...,\ytickstop}
+    \draw (0.1,\y) -- (-0.1,\y) node[anchor=east] {\scriptsize \y};
+
+    % Draw light gray grid lines
+    \foreach \x in {1,...,\xtickstop}
+    \draw[lightgray,dashed] (\x,0) -- (\x,#2);
+    \foreach \y in {1,...,\ytickstop}
+    \draw[lightgray,dashed] (0,\y) -- (#1,\y);
+}
 
 % Text and spacing
 \usepackage{setspace}
@@ -53,92 +84,59 @@
 \begin{document}
 \maketitle
 
-\section{Introduction}
-This document contains notes on collision detection and collision resolution.
-These notes are based on course material from COMP 4300 at the Memorial
-University of Newfoundland taught by Prof.\ David Churchill.
+% \section{Introduction}
+% This document contains notes on collision detection and collision resolution.
+% These notes are based on course material from COMP 4300 at the Memorial
+% University of Newfoundland taught by Prof.\ David Churchill.
 
+\tableofcontents
+
+\newpage
 \section{Collision Detection}
-\subsection{Collision Detection Problems}
-\begin{itemize}
-    \item Given two entities which have a current position, do they intersect?
-          \begin{enumerate}
-              \item If they do intersect, how do we resolve the collision?
-              \item If they do not intersect, how do we determine if they will intersect in the
-                    future?
-          \end{enumerate}
+Collision detection is a fundamental concept in game development, determining
+when two or more objects intersect within a game world. It is crucial for many
+game mechanics, including physics, AI behavior, and rendering effects.
+Essentially, collision detection answers the question:
 
-          \begin{figure}[ht]
-              \centering
+\begin{displayquote}
+    \textit{Given two entities, each with a position and shape, do they intersect? If so,
+        how can we resolve the collision?}
+\end{displayquote}
 
-              \begin{tikzpicture}
-                  % Transform the canvas so (0,0) is at the top left and scale it down by half
-                  \begin{scope}[yscale=-1, yshift=-5cm, scale=0.5]
-                      % Draw x and y axes with arrows
-                      \draw[thick,->] (0,0) -- (10.5  ,0) node[anchor=north west] {\scriptsize x};
-                      \draw[thick,->] (0,0) -- (0,10.5) node[anchor=south east] {\scriptsize y};
-
-                      % Draw x-axis tick marks and labels
-                      \foreach \x in {1,2,...,9}
-                      \draw (\x,0.1) -- (\x,-0.1) node[anchor=north] {\scriptsize \x};
-
-                      % Draw y-axis tick marks and labels
-                      \foreach \y in {1,2,...,9}
-                      \draw (0.1,\y) -- (-0.1,\y) node[anchor=east] {\scriptsize \y};
-
-                      % Draw light gray grid lines
-                      \foreach \x in {1,2,...,9}
-                      \draw[lightgray,dashed] (\x,0) -- (\x,10);
-                      \foreach \y in {1,2,...,9}
-                      \draw[lightgray,dashed] (0,\y) -- (10,\y);
-
-                      % Draw the first non-colored non-square box
-                      \draw[thick] (2,3) rectangle (6,5);
-                      % Draw the second non-colored non-square box
-                      \draw[thick] (4,4) rectangle (7,7);
-                  \end{scope}
-              \end{tikzpicture}
-
-              \caption{Intersecting Boxes}
-              \label{fig:intersecting_boxes}
-          \end{figure}
-\end{itemize}
-
-\subsection{Entity Bounding Shapes}
+\section{Entity Bounding Shapes}
 Everyday objects have arbitrary shapes and interaction surfaces. For example,
 consider a teacup. A teacup has a complex shape consisting of many curves and
 edges. Accurately simulating the collision of a teacup requires considering
 both the teacup's shape and the shape of the object it collides with. With many
 complex shapes, collision detection becomes computationally expensive.
 
-To address this issue, we use bounding shapes that approximate an object's
-shape to calculate collisions more efficiently. The most effective way to do
-this is by using primitive types:
-
+To address this issue, we can use bounding shapes that approximate an object's
+shape to calculate collisions more efficiently. We do this by enclosing an
+object in a primitive type:
 \begin{itemize}
     \item \textbf{2D:} Circle, Rectangle, Triangle, Octagon
     \item \textbf{3D:} Sphere, Box, Cylinder, Cone
 \end{itemize}
 
-The circle is a common primitive shape and is the simplest possible
-intersection bounding shape. Another commonly used shape is the rectangle,
-which encloses an object in a box.
-
 By using these primitive shapes, collision detection becomes simpler and less
 computationally demanding.
 
-\subsubsection{Bounding Circles}
-As mentioned, the circle is the simplest possible intersection bounding shape
-in regards to collision detection. This is because a circle is only defined
-only by its center and radius, making calculations for collision detection
-easier.
+\subsection{Bounding Circles}
+The circle is the simplest possible intersection bounding shape. This is
+because a circle is only defined only by its center and radius, making
+calculations for collision detection easier.
 
-Calculating the distance between two circles is a simple task. Given two
-circles with centers $c_1$ and $c_2$ and radii $r_1$ and $r_2$, the distance
-between the two circles is given by the formula:
+To detect if two circles intersect, we must first calculate the difference
+between the centers of two different circles. Given two circles with centers
+$c_1$ and $c_2$ and radii $r_1$ and $r_2$, the distance between the two centers
+is given by:
 
 \begin{equation}
-    d = \sqrt{(c_2.x - c_1.x)^2 + (c_2.y - c_1.y)^2}
+    \begin{aligned}
+        d_x & = c_2.x - c_1.x            \\
+        d_y & = c_2.y - c_1.y            \\
+        d   & = \sqrt{{d_x}^2 + {d_y}^2}
+    \end{aligned}
 \end{equation}
 
 This is derived from the Pythagorean theorem, where the length of the
@@ -149,8 +147,58 @@ squares of the other two sides.
     c = \sqrt{a^2 + b^2}
 \end{equation}
 
-If the distance between the two circles is less than the sum of their radii,
-then the circles intersect.
+Now that we have the distance between the two centers, we can determine if the
+circles intersect by comparing the distance to the sum of the radii of the two
+circles.
+
+\begin{center}
+    \textit{Circles intersect if and only if:}\\
+    $d < r_1 + r_2$
+\end{center}
+
+\subsubsection{Example}
+
+Given two circles with centers $c_1 = (5, 4)$ and $c_2 = (7, 7)$ and radii $r_1
+    = 2$ and $r_2 = 3$, calculate if the two circles intersect.
+
+\begin{multicols*}{2}
+
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+                \drawaxesgrid{12}{12}
+                % First circle
+                \draw [black, thick] (5, 4) circle (2);
+                % a point at the center of the first circle
+                \filldraw [black] (5, 4) circle (4pt) node[anchor=north east] {$c_1$};
+                % Second circle
+                \draw [black, thick] (7, 7) circle (3);
+                % a point at the center of the second circle
+                \filldraw [black] (7, 7) circle (4pt) node[anchor=north east] {$c_2$};
+
+                % Draw triangle representing dx, dy, d
+                \draw [red, dashed] (5, 4) -- (5, 7) -- (7, 7) -- cycle;
+
+                % Label dx, dy, d
+                \node [red, anchor=east] at (5, 5.5) {\tiny $d_y$};
+                \node [red, anchor=north] at (6, 7) {\tiny $d_x$};
+                \node [red, anchor=south] at (6, 5.5) {\tiny $d$};
+
+            \end{scope}
+        \end{tikzpicture}
+    \end{center}
+    \columnbreak
+    \begin{equation*}
+        \begin{aligned}
+            d_x           & = 7 - 5 = 2,                                      \\
+            d_y           & = 7 - 4 = 3,                                      \\
+            d             & = \sqrt{2^2 + 3^2} = \sqrt{13} \approx 3.61,      \\
+            r_1 + r_2     & = 2 + 3 = 5,                                      \\
+            d < r_1 + r_2 & \Rightarrow \text{Both circles are intersecting}. \\
+                          & \therefore \text{Collision detected.}
+        \end{aligned}
+    \end{equation*}
+\end{multicols*}
 
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
@@ -185,6 +233,19 @@ bool checkCollision(const Circle &c1, const Circle &c2) {
 
     return collision;
 }
+
+int main() {
+    Circle c1 = {{5, 4}, 2};
+    Circle c2 = {{7, 7}, 3};
+
+    if (checkCollision(c1, c2)) {
+        std::cout << "Collision detected!" << std::endl;
+    } else {
+        std::cout << "No collision detected." << std::endl;
+    }
+
+    return 0;
+}
 \end{lstlisting}
 
 \end{mdframed}
@@ -195,7 +256,7 @@ bool checkCollision(const Circle &c1, const Circle &c2) {
 
 \newpage
 
-\subsubsection{Axis Aligned Bounding Boxes (AABB)}
+\subsection{Axis Aligned Bounding Boxes (AABB)}
 In 2D games, objects are often enclosed in rectangles known as bounding boxes.
 These are usually the smallest possible rectangle that completely encompasses
 the texture's width and height. However, this is not always the case, as some
@@ -208,7 +269,7 @@ something called an axis-aligned bounding box (AABB). An AABB is a rectangle
 that is aligned with the x and y axes, i.e. with sides parallel to the
 coordinate axes.
 
-\paragraph*{Point inside AABB}
+\subsubsection{Point and AABB Intersection}
 
 The simplest calculation for AABBs is to check whether a point is inside the
 rectangle. Given a point $p$ and a rectangle with corners $c_1$ and $c_2$, we
@@ -308,7 +369,7 @@ bool pointInsideAABB(const Vec2 &p, const AABB &aabb) {
 \end{center}
 
 \newpage
-\paragraph*{AABB Intersection}
+\subsubsection{AABB Intersection}
 
 Determining if two AABBs intersect is a relatively simple task. Given two
 AABBs, one may be inclined to check for collision using the point inside AABB
@@ -360,23 +421,10 @@ Example of AABB intersection:
     \begin{tikzpicture}
         \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
 
-            % Draw x and y axes with arrows
-            \draw[thick,->] (0,0) -- (18.5,0) node[anchor=north west] {\scriptsize x};
-            \draw[thick,->] (0,0) -- (0,18.5) node[anchor=south east] {\scriptsize y};
+            \drawaxesgrid{15}{20}
 
-            % Draw x-axis tick marks and labels
-            \foreach \x in {1,2,...,17}
-            \draw (\x,0.1) -- (\x,-0.1) node[anchor=south] {\scriptsize \x};
-
-            % Draw y-axis tick marks and labels
-            \foreach \y in {1,2,...,17}
-            \draw (0.1,\y) -- (-0.1,\y) node[anchor=east] {\scriptsize \y};
-
-            % Draw light gray grid lines
-            \foreach \x in {1,2,...,17}
-            \draw[lightgray,dashed] (\x,0) -- (\x,18);
-            \foreach \y in {1,2,...,17}
-            \draw[lightgray,dashed] (0,\y) -- (18,\y);
+            % a point at the origin (0, 0) 
+            \filldraw [black] (0, 0) circle (5pt) {};
 
             % First rectangle
             \draw [black, thick] (3, 3) rectangle (8, 10);
@@ -472,39 +520,39 @@ bool checkAABBIntersection(const AABB &a, const AABB &b) {
 \end{lstlisting}
 \end{mdframed}
 
-\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
-    \begin{lstlisting}[language=C++, aboveskip=3mm,
-        belowskip=3mm,
-        showstringspaces=false,
-        columns=flexible,
-        basicstyle={\small\ttfamily},
-        numbers=left,
-        numberstyle=\tiny\color{gray},
-        keywordstyle=\color{blue},
-        commentstyle=\color{dkgreen},
-        stringstyle=\color{mauve},
-        breaklines=true,
-        breakatwhitespace=true,
-        tabsize=3,
-        xleftmargin=1em]
-#include "Vec2.h"
-class CTransform : public Component {
-    public :
-        Vec2 position = {0, 0};
-        Vec2 previousPosition = {0, 0};
-        Vec2 scale = {1.0, 1.0};
-        float angle = 0;
-};
+% \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+%     \begin{lstlisting}[language=C++, aboveskip=3mm,
+%         belowskip=3mm,
+%         showstringspaces=false,
+%         columns=flexible,
+%         basicstyle={\small\ttfamily},
+%         numbers=left,
+%         numberstyle=\tiny\color{gray},
+%         keywordstyle=\color{blue},
+%         commentstyle=\color{dkgreen},
+%         stringstyle=\color{mauve},
+%         breaklines=true,
+%         breakatwhitespace=true,
+%         tabsize=3,
+%         xleftmargin=1em]
+% #include "Vec2.h"
+% class CTransform : public Component {
+%     public :
+%         Vec2 position = {0, 0};
+%         Vec2 previousPosition = {0, 0};
+%         Vec2 scale = {1.0, 1.0};
+%         float angle = 0;
+% };
 
-class CBoundingBox : public Component {
-    public :
-        Vec2 size;
-        Vec2 halfSize;
-        CBoundingBox(const Vec2 &size) : size(size), halfSize(size / 2) {}
-};
+% class CBoundingBox : public Component {
+%     public :
+%         Vec2 size;
+%         Vec2 halfSize;
+%         CBoundingBox(const Vec2 &size) : size(size), halfSize(size / 2) {}
+% };
 
-        \end{lstlisting}
-\end{mdframed}
+%         \end{lstlisting}
+% \end{mdframed}
 
 \newpage
 \section*{Appendix}
