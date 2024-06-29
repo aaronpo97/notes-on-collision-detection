@@ -1,11 +1,14 @@
 \documentclass{article}
 
 % Geometry and layout
-\usepackage[margin=1.2in]{geometry}
+\usepackage[margin=1.3in]{geometry}
 \usepackage[skip=10pt plus1pt, indent=0em]{parskip}
 \usepackage{multicol}
 \usepackage{titlesec}
 \usepackage{csquotes}
+\usepackage{float}
+\usepackage{setspace}
+\onehalfspacing
 
 % Links and references
 \usepackage{hyperref}
@@ -32,6 +35,8 @@
 
 % Theorems and remarks
 \newtheorem*{remark}{Remark}
+
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
 
 \newcommand{\drawaxesgrid}[2]{
     % Draw x and y axes with arrows
@@ -122,14 +127,43 @@ By using these primitive shapes, collision detection becomes simpler and less
 computationally demanding.
 
 \subsection{Bounding Circles}
-The circle is the simplest possible intersection bounding shape. This is
-because a circle is only defined only by its center and radius, making
-calculations for collision detection easier.
+A circle is the simplest form of an intersection bounding shape. This
+simplicity arises from the fact that a circle is defined solely by its center
+and radius, which makes calculations for collision detection more
+straightforward.
 
-To detect if two circles intersect, we must first calculate the difference
-between the centers of two different circles. Given two circles with centers
-$c_1$ and $c_2$ and radii $r_1$ and $r_2$, the distance between the two centers
-is given by:
+Consider a complex polygon with numerous vertices. Calculating collisions for
+such a polygon can be computationally intensive. However, by approximating the
+polygon with a circle, the collision detection process can be simplified
+significantly.
+
+\begin{center}
+    \begin{tikzpicture}
+        \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+            \drawaxesgrid{12}{12}
+            % Draw a circle with a dot in the centre
+            \draw [thin] (6,6) circle (3);
+
+            % Calculate the vertices of a heptagon (7-sided polygon)
+            \foreach \i in {0,1,...,6} {
+                    \pgfmathsetmacro{\angle}{360/7*\i}
+                    \pgfmathsetmacro{\x}{6 + 3*cos(\angle)}
+                    \pgfmathsetmacro{\y}{6 + 3*sin(\angle)}
+                    \coordinate (P\i) at (\x,\y);
+                }
+
+            % Draw the heptagon
+            \draw[thick] (P0) -- (P1) -- (P2) -- (P3) -- (P4) -- (P5) -- (P6) -- cycle;
+
+            \fill (6,6) circle (4pt) node[anchor=north east] {$c$};
+        \end{scope}
+    \end{tikzpicture}
+\end{center}
+
+To detect if two bounding circles intersect, we must first calculate the
+difference between the centers of the two circles. Given two circles with
+centers $c_1$ and $c_2$ and radii $r_1$ and $r_2$, the distance between the two
+centers is given by:
 
 \begin{equation}
     \begin{aligned}
@@ -139,30 +173,25 @@ is given by:
     \end{aligned}
 \end{equation}
 
-This is derived from the Pythagorean theorem, where the length of the
-hypotenuse of a right triangle is given by the square root of the sum of the
-squares of the other two sides.
+This formula is derived from the Pythagorean theorem, which states that t he
+length of the hypotenuse of a right triangle is given by the square root of the
+sum of the squares of the two other sides.
 
 \begin{equation}
     c = \sqrt{a^2 + b^2}
 \end{equation}
 
-Now that we have the distance between the two centers, we can determine if the
-circles intersect by comparing the distance to the sum of the radii of the two
-circles.
+Once we have the distance between the centers, we can determine if the circles
+intersect by comparing this distance to the sum of their radii.
 
 \begin{center}
     \textit{Circles intersect if and only if:}\\
     $d < r_1 + r_2$
 \end{center}
 
-\subsubsection{Example}
+\subsubsection{Examples}
 
-Given two circles with centers $c_1 = (5, 4)$ and $c_2 = (7, 7)$ and radii $r_1
-    = 2$ and $r_2 = 3$, calculate if the two circles intersect.
-
-\begin{multicols*}{2}
-
+\begin{figure}[H]
     \begin{center}
         \begin{tikzpicture}
             \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
@@ -186,20 +215,39 @@ Given two circles with centers $c_1 = (5, 4)$ and $c_2 = (7, 7)$ and radii $r_1
 
             \end{scope}
         \end{tikzpicture}
-    \end{center}
-    \columnbreak
-    \begin{equation*}
-        \begin{aligned}
-            d_x           & = 7 - 5 = 2,                                      \\
-            d_y           & = 7 - 4 = 3,                                      \\
-            d             & = \sqrt{2^2 + 3^2} = \sqrt{13} \approx 3.61,      \\
-            r_1 + r_2     & = 2 + 3 = 5,                                      \\
-            d < r_1 + r_2 & \Rightarrow \text{Both circles are intersecting}. \\
-                          & \therefore \text{Collision detected.}
-        \end{aligned}
-    \end{equation*}
-\end{multicols*}
 
+        \caption{Bounding Circle Intersection Example}
+    \end{center}
+\end{figure}
+
+Given two circles with centers $c_1 = (5, 4)$ and $c_2 = (7, 7)$ and radii $r_1
+    = 2$ and $r_2 = 3$, calculate if the two circles intersect.
+
+\subsubsubsection{Mathematical Solution}
+First calculate the distance between the two centers:
+\begin{equation*}
+    \begin{aligned}
+        \Delta_x & = 7 - 5 = 2,                                 \\
+        \Delta_y & = 7 - 4 = 3,                                 \\
+        \Delta   & = \sqrt{2^2 + 3^2} = \sqrt{13} \approx 3.61, \\
+    \end{aligned}
+\end{equation*}
+
+Now, compare the distance to the sum of the radii:
+\begin{equation*}
+    \begin{aligned}
+        \Delta < r_1 + r_2         & \rightarrow \textnormal{Circles intersect.} \\
+        3.61 < 2 + 3               & \rightarrow \textnormal{Circles intersect.} \\
+        \textnormal{\textbf{TRUE}} & \rightarrow \textnormal{Circles intersect.} \\
+    \end{aligned}
+\end{equation*}
+
+Since the distance between the two centers is less than the sum of the radii,
+the two circles intersect.
+
+\subsubsubsection{Code Solution}
+Here is an implementation of the collision detection algorithm in C++:
+\vspace{1em}
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
         belowskip=3mm,
@@ -249,10 +297,6 @@ int main() {
 \end{lstlisting}
 
 \end{mdframed}
-
-\begin{center}
-    \textbf{Listing 1:} \textit{Collision Detection for Bounding Circles in C++}
-\end{center}
 
 \newpage
 
