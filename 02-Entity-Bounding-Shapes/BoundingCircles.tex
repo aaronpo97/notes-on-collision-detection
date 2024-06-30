@@ -1,38 +1,41 @@
-\subsection{Bounding Circles}
+\section{Bounding Circles}
 A circle is the simplest form of an intersection bounding shape. This
 simplicity arises from the fact that a circle is defined solely by its center
 and radius, which makes calculations for collision detection more
 straightforward.
+\begin{figure}[H]
+    \begin{center}
+        \begin{tikzpicture}
+
+            \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+                \drawaxesgrid{12}{12}
+                % Draw a circle with a dot in the centre
+                \draw [thin] (6,6) circle (3);
+
+                % Calculate the vertices of a heptagon (7-sided polygon)
+                \foreach \i in {0,1,...,6} {
+                        \pgfmathsetmacro{\angle}{360/7*\i}
+                        \pgfmathsetmacro{\x}{6 + 3*cos(\angle)}
+                        \pgfmathsetmacro{\y}{6 + 3*sin(\angle)}
+                        \coordinate (P\i) at (\x,\y);
+                    }
+
+                % Draw the heptagon
+                \draw[thick] (P0) -- (P1) -- (P2) -- (P3) -- (P4) -- (P5) -- (P6) -- cycle;
+
+                \fill (6,6) circle (4pt) node[anchor=north east] {$c$};
+            \end{scope}
+        \end{tikzpicture}
+    \end{center}
+    \caption{A septagon (7-sided polygon) approximated by a bounding circle}
+\end{figure}
 
 Consider a complex polygon with numerous vertices. Calculating collisions for
 such a polygon can be computationally intensive. However, by approximating the
 polygon with a circle, the collision detection process can be simplified
 significantly.
 
-\begin{center}
-    \begin{tikzpicture}
-        \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
-            \drawaxesgrid{12}{12}
-            % Draw a circle with a dot in the centre
-            \draw [thin] (6,6) circle (3);
-
-            % Calculate the vertices of a heptagon (7-sided polygon)
-            \foreach \i in {0,1,...,6} {
-                    \pgfmathsetmacro{\angle}{360/7*\i}
-                    \pgfmathsetmacro{\x}{6 + 3*cos(\angle)}
-                    \pgfmathsetmacro{\y}{6 + 3*sin(\angle)}
-                    \coordinate (P\i) at (\x,\y);
-                }
-
-            % Draw the heptagon
-            \draw[thick] (P0) -- (P1) -- (P2) -- (P3) -- (P4) -- (P5) -- (P6) -- cycle;
-
-            \fill (6,6) circle (4pt) node[anchor=north east] {$c$};
-        \end{scope}
-    \end{tikzpicture}
-\end{center}
-
-\subsubsection{Point in Circle Intersection}
+\subsection{Point in Circle Intersection}
 To determine if a point lies within a circle, we can calculate the distance
 from the point to the center of the circle and compare it to the circle's
 radius.
@@ -56,7 +59,111 @@ circle.
     $d < r$
 \end{center}
 
-\subsubsection{Bounding Circle Intersection}
+\subsubsection{Example}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+                \drawaxesgrid{12}{12}
+                % Draw a circle with a dot in the centre
+                \draw [thin] (6,6) circle (3);
+                \fill (6,6) circle (4pt) node[anchor=north east] {$c$};
+
+                % Draw a point
+                \filldraw [black] (8, 6) circle (4pt) node[anchor=north east] {$p$};
+
+                % Draw a line from the center to the point
+                \draw [red, dashed] (6, 6) -- (8, 6);
+
+                % Label the distance
+                \node [red, anchor=south] at (7, 6) {\tiny $d$};
+            \end{scope}
+        \end{tikzpicture}
+    \end{center}
+    \caption{Point in Circle Intersection Example}
+
+\end{figure}
+
+Given a circle with center $c = (6, 6)$ and radius $r = 3$, and a point $p =
+    (8, 6)$, use math to determine if the point lies within the circle.
+
+\subsubsection{Mathematical Solution}
+
+First calculate the distance between the point and the center:
+\begin{equation*}
+    \begin{aligned}
+        \Delta_x & = 8 - 6 = 2,            \\
+        \Delta_y & = 6 - 6 = 0,            \\
+        \Delta   & = \sqrt{2^2 + 0^2} = 2, \\
+    \end{aligned}
+\end{equation*}
+
+Now, compare the distance to the radius:
+\begin{equation*}
+    \begin{aligned}
+        \Delta < r                 & \rightarrow \textnormal{Point lies within circle.} \\
+        2 < 3                      & \rightarrow \textnormal{Point lies within circle.} \\
+        \textnormal{\textbf{TRUE}} & \rightarrow \textnormal{Point lies within circle.} \\
+    \end{aligned}
+\end{equation*}
+
+Since the distance between the point and the center is less than the radius,
+the point lies within the circle.
+
+\subsubsection{Code Solution}
+
+Here is an implementation of the algorithm in C++: \vspace{1em}
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{dkgreen},
+        stringstyle=\color{mauve},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=3,
+        xleftmargin=1em]
+
+#include "Vec2.h"
+#include <cmath>
+#include <iostream>
+
+struct Circle {
+    Vec2 center;
+    float radius;
+};
+
+bool pointInCircle(const Vec2 &point, const Circle &circle) {
+    const float dx = point.x - circle.center.x;
+    const float dy = point.y - circle.center.y;
+    const float distance = std::sqrt(dx * dx + dy * dy);
+    const bool inside = distance < circle.radius;
+
+    return inside;
+}
+
+int main() {
+    Circle circle = {{6, 6}, 3};
+    Vec2 point = {8, 6};
+
+    if (pointInCircle(point, circle)) {
+        std::cout << "Point lies within circle." << std::endl;
+    } else {
+        std::cout << "Point lies outside circle." << std::endl;
+    }
+
+    return 0;
+}
+
+\end{lstlisting}
+\end{mdframed}
+
+\subsection{Bounding Circle Intersection}
 
 To detect if two bounding circles intersect, we must first calculate the
 difference between the centers of the two circles. Given two circles with
@@ -87,8 +194,7 @@ intersect by comparing this distance to the sum of their radii.
     $d < r_1 + r_2$
 \end{center}
 
-\subsubsection{Examples}
-
+\subsubsection{Example}
 \begin{figure}[H]
     \begin{center}
         \begin{tikzpicture}

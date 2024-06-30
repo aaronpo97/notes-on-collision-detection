@@ -1,14 +1,15 @@
-\documentclass{article}
+\documentclass{report}
 
 % Geometry and layout
-\usepackage[margin=1.3in]{geometry}
+\usepackage[margin=3.3cm]{geometry}
 \usepackage[skip=10pt plus1pt, indent=0em]{parskip}
 \usepackage{multicol}
 \usepackage{titlesec}
 \usepackage{csquotes}
 \usepackage{float}
-\usepackage{setspace}
-\onehalfspacing
+\usepackage{palatino}
+
+\usepackage{fancyhdr}
 
 % Links and references
 \usepackage{hyperref}
@@ -36,8 +37,23 @@
 % Theorems and remarks
 \newtheorem*{remark}{Remark}
 
-\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+% Text
+\makeatletter
+\renewcommand\maketitle{
+    \begin{center}
+  \vspace*{12em}
+        {\textbf{\LARGE{\@title}}} \\
+        \vspace{1em}
+        {\textbf{\Large{\@author}}} \\
+        \vspace{1em}
+        {\textbf{\large{\@date}}} \\
+        \vspace{2em}
+    \end{center}
+}
 
+% Custom commands
+% \renewcommand{\land}{\,\,\textrm{\textbf{AND}}\,\,}
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
 \newcommand{\drawaxesgrid}[2]{
     % Draw x and y axes with arrows
     \draw[thick,->] (0,0) -- (#1,0) node[anchor=west] {\scriptsize x};
@@ -65,42 +81,24 @@
     \draw[lightgray,dashed] (0,\y) -- (#1,\y);
 }
 
-% Text and spacing
-\usepackage{setspace}
-\usepackage{blindtext}
-\makeatletter
-\renewcommand\maketitle{
-    \begin{center}
-        {\textbf{\LARGE{\@title}}} \\
-        \vspace{1em}
-        {\textbf{\Large{\@author}}} \\
-        \vspace{1em}
-        {\textbf{\large{\@date}}} \\
-        \vspace{2em}
-    \end{center}
-}
-
-% Custom commands
-\renewcommand{\land}{\,\,\textrm{\textbf{AND}}\,\,}
-
 \author{Aaron Po}
 \title{Collision Detection and Collision Resolution}
 \date{\today}
 \begin{document}
 \maketitle
 
-% \section{Introduction}
-% This document contains notes on collision detection and collision resolution.
-% These notes are based on course material from COMP 4300 at the Memorial
-% University of Newfoundland taught by Prof.\ David Churchill.
-
 \tableofcontents
-
-\newpage
-\input{01-CollisionDetection/index.tex}
-\input{02-Entity-Bounding-Shapes/index.tex}
+\include{01-CollisionDetection/index.tex}
+\include{02-Entity-Bounding-Shapes/index.tex}
 
 \section*{Appendix}
+
+The following code snippets are implementations of the \texttt{Vec2} class in
+C++. The \texttt{Vec2} class is a simple two-dimensional vector class that
+provides basic vector operations such as addition, subtraction, multiplication,
+and division. The class is used in this document for various collision
+detection and resolution algorithms.
+
 \subsection*{Vec2.h}
 \vspace{1em}
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
@@ -146,6 +144,66 @@ public:
 };
 
 #endif // VEC2_H
+\end{lstlisting}
+\end{mdframed}
+
+\subsection*{Vec2.cpp}
+\vspace{1em}
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+    xleftmargin=1em]
+
+#include "Vec2.h"
+#include <cmath>
+
+Vec2::Vec2(float x, float y) : x(x), y(y) {}
+
+bool Vec2::operator==(const Vec2 &rhs) const { return rhs.x == x && rhs.y == y;
+    }
+
+bool Vec2::operator!=(const Vec2 &rhs) const { return !(*this == rhs); }
+
+Vec2 Vec2::operator-(const Vec2 &rhs) const { return Vec2(x - rhs.x, y -
+        rhs.y); }
+
+Vec2 Vec2::operator+(const Vec2 &rhs) const { return Vec2(x + rhs.x, y +
+        rhs.y); }
+
+Vec2 Vec2::operator*(const float val) const { return Vec2(x * val, y * val); }
+
+Vec2 Vec2::operator/(const float val) const { return Vec2(x / val, y / val); }
+
+void Vec2::operator+=(const Vec2 &rhs) { x += rhs.x; y += rhs.y; }
+
+void Vec2::operator-=(const Vec2 &rhs) { x -= rhs.x; y -= rhs.y; }
+
+void Vec2::operator*=(const float val) { x *= val; y *= val; }
+
+void Vec2::operator/=(const float val) { x /= val; y /= val; }
+
+float Vec2::length() const { return std::sqrt(x * x + y * y); }
+
+Vec2 Vec2::normalize() {
+        float len = length();
+        if (len > 0) { // Avoid division by zero
+                x /= len;
+                y /= len;
+            }
+
+        return *this; }
+
 \end{lstlisting}
 \end{mdframed}
 \end{document}

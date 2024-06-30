@@ -1,4 +1,4 @@
-\subsection{Axis Aligned Bounding Boxes (AABB)}
+\section{Axis Aligned Bounding Boxes (AABB)}
 In 2D games, objects are often enclosed in rectangles known as bounding boxes.
 These are usually the smallest possible rectangle that completely encompasses
 the texture's width and height. However, this is not always the case, as some
@@ -11,7 +11,7 @@ something called an axis-aligned bounding box (AABB). An AABB is a rectangle
 that is aligned with the x and y axes, i.e. with sides parallel to the
 coordinate axes.
 
-\subsubsection{Point and AABB Intersection}
+\subsection{Point and AABB Intersection}
 
 The simplest calculation for AABBs is to check whether a point is inside the
 rectangle. Given a point $p$ and a rectangle with corners $c_1$ and $c_2$, we
@@ -71,6 +71,60 @@ When broken down, the formula is evaluating four conditions:
     \end{enumerate}
 \end{multicols}
 \newpage
+
+\subsubsection{Example}
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+                \drawaxesgrid{10}{10}
+
+                % Draw the rectangle
+                \draw [black, thick] (3, 3) rectangle (8, 10);
+                % Label the corners of the re
+                \filldraw [black] (3, 3) circle (4pt) node[anchor=north east] {$c$};
+
+                % Draw the point
+                \filldraw [red] (5, 5) circle (4pt) node[anchor=north west] {$p$};
+
+            \end{scope}
+        \end{tikzpicture}
+
+        \caption{Rectangle Point Inclusion Example}
+    \end{center}
+\end{figure}
+
+Given a rectangle with a top left corner $c = (3, 3)$, width $w = 5$, and
+height $h = 7$, and a point $p = (5, 5)$, use math to determine if the point
+lies within the rectangle.
+
+\subsubsection{Mathematical Solution}
+First, calculate the point's x and y coordinates relative to the rectangle's
+top left corner:
+
+\begin{equation*}
+    \begin{aligned}
+        p.x & = 5 - 3 = 2 \\
+        p.y & = 5 - 3 = 2
+    \end{aligned}
+\end{equation*}
+
+Next, check if the point lies within the rectangle:
+
+\begin{equation*}
+    \begin{aligned}
+        (2 > 0) \land (2 < 5) \land (2 > 0) \land (2 < 7) \rightarrow \text{Point lies within rectangle}. \\
+        \textnormal{\textbf{TRUE}} \land \textnormal{\textbf{TRUE}} \land \textnormal{\textbf{TRUE}} \land \textnormal{\textbf{TRUE}} \rightarrow \text{Point lies within rectangle}.
+    \end{aligned}
+\end{equation*}
+
+Since all four conditions are met, the point lies within the rectangle.
+
+\subsubsection{Code Solution}
+
+Here is an implementation of the point-in-AABB intersection algorithm in C++:
+
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
         belowskip=3mm,
@@ -95,23 +149,18 @@ struct AABB {
     float height;
 };
 
-bool pointInsideAABB(const Vec2 &p, const AABB &aabb) {
-    const bool inside = p.x > aabb.topLeft.x &&
-                        p.x < aabb.topLeft.x + aabb.width &&
-                        p.y > aabb.topLeft.y &&
-                        p.y < aabb.topLeft.y + aabb.height;
+bool checkPointInAABB(const Vec2 &point, const AABB &rect) {
+    const bool pointInAABB = 
+        point.x > rect.topLeft.x && point.x < rect.topLeft.x + rect.width &&
+        point.y > rect.topLeft.y && point.y < rect.topLeft.y + rect.height;
 
-    return inside;
+    return pointInAABB;
 }
+
 \end{lstlisting}
-
 \end{mdframed}
-\begin{center}
-    \textbf{Listing 2:} \textit{Point Inside AABB in C++}
-\end{center}
 
-\newpage
-\subsubsection{AABB Intersection}
+\subsection{AABB Intersection}
 
 Determining if two AABBs intersect is a relatively simple task. Given two
 AABBs, one may be inclined to check for collision using the point inside AABB
@@ -158,7 +207,7 @@ horizontally and vertically. This is done by the following formula:
     \end{aligned}
 \end{equation}
 
-Example of AABB intersection:
+\subsubsection{Example}
 \begin{center}
     \begin{tikzpicture}
         \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
@@ -187,36 +236,34 @@ Example of AABB intersection:
     \end{tikzpicture}
 \end{center}
 
-\begin{center}
-    \textbf{Figure 1:} \textit{AABB Intersection Example}
+Given two rectangles with top left corners $c_1 = (3, 3)$ and $c_2 = (7, 6)$,
+widths $w_1 = 5$ and $w_2 = 5$, and heights $h_1 = 7$ and $h_2 = 10$, use math
+to determine if the rectangles intersect.
 
-\end{center}
+\subsubsection{Mathematical Solution}
+First, check if the rectangles overlap horizontally:
 
-It is important to note that the above formula can only check whether or nor
-not two AABBs intersect. It does not provide information on how much they
-intersect. To determine the overlap, we can use a calculation that takes a
-center point and the width and height of the bounding box. This is done as
-follows:
-
-Given two AABBs with centers $c_1$ and $c_2$, widths $w_1$ and $w_2$, and
-heights $h_1$ and $h_2$,
-
-\begin{equation}
+\begin{equation*}
     \begin{aligned}
-        \Delta                        & = \left\{ \left| c_1.x - c_2.x \right| , \left| c_1.y - c_2.y \right| \right\}                                                                                     \\
-        O                             & = \left\{ \left[ \left( \frac{w_1}{2} + \frac{w_2}{2} \right) - \Delta_x \right] , \left[ \left( \frac{h_1}{2} + \frac{h_2}{2} \right) - \Delta_y \right] \right\} \\
-        ( O_x > 0 ) \land ( O_y > 0 ) & \rightarrow \text{AABBs intersect}
+        (3 < 7 + 5) \land (3 + 5 > 7) & \rightarrow \text{Rectangles overlap horizontally}. \\
+        \textnormal{\textbf{TRUE}}    & \rightarrow \text{Rectangles overlap horizontally}.
     \end{aligned}
-\end{equation}
+\end{equation*}
 
-In this formula, the vector $\Delta$ represents the absolute difference between
-the center coordinates of the two AABBs along the $x$ and $y$ axes.
+Next, check if the rectangles overlap vertically:
 
-The vector $O$ represents the overlap between the two AABBs along the $x$ and
-$y$ axes. The overlap along each axis is calculated by subtracting the
-difference between the centers from the sum of the half-widths (for the $x$
-axis) or half heights (for the $y$ axis) of the two AABBs. Here is an
-implementation of the AABB intersection algorithm in C++:
+\begin{equation*}
+    \begin{aligned}
+        (3 < 6 + 10) \land (3 + 7 > 6) & \rightarrow \text{Rectangles overlap vertically}. \\
+        \textnormal{\textbf{TRUE}}     & \rightarrow \text{Rectangles overlap vertically}.
+    \end{aligned}
+\end{equation*}
+
+Since the rectangles overlap both horizontally and vertically, they intersect.
+
+\subsubsection{Code Solution}
+
+Here is an implementation of the AABB intersection algorithm in C++:
 
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
     \begin{lstlisting}[language=C++, aboveskip=3mm,
@@ -235,6 +282,123 @@ implementation of the AABB intersection algorithm in C++:
         xleftmargin=1em]
 
 #include "Vec2.h"
+
+struct AABB {
+    Vec2 topLeft;
+    float width;
+    float height;
+};
+
+bool checkAABBIntersection(const AABB &a, const AABB &b) {
+    const bool horizontalOverlap = 
+        a.topLeft.x < b.topLeft.x + b.width && a.topLeft.x + a.width > b.topLeft.x;
+    const bool verticalOverlap = 
+        a.topLeft.y < b.topLeft.y + b.height && a.topLeft.y + a.height > b.topLeft.y;
+
+    const bool AABBIntersects = horizontalOverlap && verticalOverlap;
+
+    return AABBIntersects;
+}
+
+int main() {
+    AABB a = {{3, 3}, 5, 7};
+    AABB b = {{7, 6}, 5, 10};
+
+    if (checkAABBIntersection(a, b)) {
+        std::cout << "AABBs intersect." << std::endl;
+    } else {
+        std::cout << "AABBs do not intersect." << std::endl;
+    }
+
+    return 0;
+}
+
+\end{lstlisting}
+\end{mdframed}
+
+It is important to note that the above formula can only check whether or nor
+not two AABBs intersect. It does not provide information on how much they
+intersect.
+
+To determine the overlap, we can use a calculation that takes a center point
+and the width and height of the bounding box. This is done as follows:
+
+Given two AABBs with centers $c_1$ and $c_2$, widths $w_1$ and $w_2$, and
+heights $h_1$ and $h_2$,
+
+\begin{equation}
+    \begin{aligned}
+        \Delta                        & = \left\{ \left| c_1.x - c_2.x \right| , \left| c_1.y - c_2.y \right| \right\}                                                                                     \\
+        O                             & = \left\{ \left[ \left( \frac{w_1}{2} + \frac{w_2}{2} \right) - \Delta_x \right] , \left[ \left( \frac{h_1}{2} + \frac{h_2}{2} \right) - \Delta_y \right] \right\} \\
+        ( O_x > 0 ) \land ( O_y > 0 ) & \rightarrow \text{AABBs intersect}
+    \end{aligned}
+\end{equation}
+
+In this formula, the vector $\Delta$ represents the absolute difference between
+the center coordinates of the two AABBs along the $x$ and $y$ axes.
+
+The vector $O$ represents the overlap between the two AABBs along the $x$ and
+$y$ axes. The overlap along each axis is calculated by subtracting the
+difference between the centers from the sum of the half-widths (for the $x$
+axis) or half heights (for the $y$ axis) of the two AABBs.
+
+\subsubsection{Example}
+
+Given two AABBs with centers $c_1 = (3, 3)$ and $c_2 = (7, 6)$, widths $w_1 =
+    5$ and $w_2 = 5$, and heights $h_1 = 7$ and $h_2 = 10$, use math to determine
+the overlap between the two AABBs.
+
+\subsubsection{Mathematical Solution}
+
+First, calculate the absolute difference between the centers of the two AABBs:
+
+\begin{equation*}
+    \begin{aligned}
+        \Delta_x & = \left| 3 - 7 \right| = 4 \\
+        \Delta_y & = \left| 3 - 6 \right| = 3
+    \end{aligned}
+\end{equation*}
+
+Next, calculate the overlap between the two AABBs along the $x$ and $y$ axes:
+
+\begin{equation*}
+    \begin{aligned}
+        O_x & = \left( \frac{5}{2} + \frac{5}{2} \right) - 4 = 1    \\
+        O_y & = \left( \frac{7}{2} + \frac{10}{2} \right) - 3 = 3.5
+    \end{aligned}
+\end{equation*}
+
+Finally, check if the AABBs intersect:
+
+\begin{equation*}
+    \begin{aligned}
+        (1 > 0) \land (3.5 > 0)    & \rightarrow \text{AABBs intersect} \\
+        \textnormal{\textbf{TRUE}} & \rightarrow \text{AABBs intersect}
+    \end{aligned}
+\end{equation*}
+
+Since the overlap along both axes is positive, the AABBs intersect.
+
+\subsubsection{Code Solution}
+
+Here is an implementation of the AABB overlap algorithm in C++:
+
+\begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
+    \begin{lstlisting}[language=C++, aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{dkgreen},
+        stringstyle=\color{mauve},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=3,
+        xleftmargin=1em]
+#include "Vec2.h"
 #include <iostream>
 
 struct AABB {
@@ -243,57 +407,30 @@ struct AABB {
     float height;
 };
 
-bool checkAABBIntersection(const AABB &a, const AABB &b) {
-    const Vec2 delta = {
-        std::abs(a.center.x - b.center.x), 
-        std::abs(a.center.y - b.center.y)
-    };
+bool checkAABBOverlap(const AABB &a, const AABB &b) {
+    const Vec2 delta = {std::abs(a.center.x - b.center.x), std::abs(a.center.y - b.center.y)};
+    const Vec2 overlap = {((a.width / 2) + (b.width / 2)) - delta.x, ((a.height / 2) + (b.height / 2)) - delta.y};
 
-    const Vec2 overlap = {
-        (a.width / 2 + b.width / 2) - delta.x,
-        (a.height / 2 + b.height / 2) - delta.y
-    };
-    
-    const bool AABBIntersects = overlap.x > 0 && overlap.y > 0;
+    const bool overlapX = overlap.x > 0;
+    const bool overlapY = overlap.y > 0;
 
-    return AABBIntersects;
+    const bool AABBsIntersect = overlapX && overlapY;
+
+    return AABBsIntersect;
 }
 
+int main() {
+    AABB a = {{3, 3}, 5, 7};
+    AABB b = {{7, 6}, 5, 10};
+
+    if (checkAABBOverlap(a, b)) {
+        std::cout << "AABBs intersect." << std::endl;
+    } else {
+        std::cout << "AABBs do not intersect." << std::endl;
+    }
+
+    return 0;
+}
 \end{lstlisting}
 \end{mdframed}
 
-% \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=1em]
-%     \begin{lstlisting}[language=C++, aboveskip=3mm,
-%         belowskip=3mm,
-%         showstringspaces=false,
-%         columns=flexible,
-%         basicstyle={\small\ttfamily},
-%         numbers=left,
-%         numberstyle=\tiny\color{gray},
-%         keywordstyle=\color{blue},
-%         commentstyle=\color{dkgreen},
-%         stringstyle=\color{mauve},
-%         breaklines=true,
-%         breakatwhitespace=true,
-%         tabsize=3,
-%         xleftmargin=1em]
-% #include "Vec2.h"
-% class CTransform : public Component {
-%     public :
-%         Vec2 position = {0, 0};
-%         Vec2 previousPosition = {0, 0};
-%         Vec2 scale = {1.0, 1.0};
-%         float angle = 0;
-% };
-
-% class CBoundingBox : public Component {
-%     public :
-%         Vec2 size;
-%         Vec2 halfSize;
-%         CBoundingBox(const Vec2 &size) : size(size), halfSize(size / 2) {}
-% };
-
-%         \end{lstlisting}
-% \end{mdframed}
-
-\newpage
