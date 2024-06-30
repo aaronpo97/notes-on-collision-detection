@@ -1,0 +1,20 @@
+\section{Entity Bounding Shapes}
+Everyday objects have arbitrary shapes and interaction surfaces. For example,
+consider a teacup. A teacup has a complex shape consisting of many curves and
+edges. Accurately simulating the collision of a teacup requires considering
+both the teacup's shape and the shape of the object it collides with. With many
+complex shapes, collision detection becomes computationally expensive.
+
+To address this issue, we can use bounding shapes that approximate an object's
+shape to calculate collisions more efficiently. We do this by enclosing an
+object in a primitive type:
+\begin{itemize}
+    \item \textbf{2D:} Circle, Rectangle, Triangle, Octagon
+    \item \textbf{3D:} Sphere, Box, Cylinder, Cone
+\end{itemize}
+
+By using these primitive shapes, collision detection becomes simpler and less
+computationally demanding.
+
+\input{02-Entity-Bounding-Shapes/BoundingCircles.tex}
+\input{02-Entity-Bounding-Shapes/AABBs.tex}
