@@ -114,53 +114,7 @@ the point lies within the circle.
 
 Here is an implementation of the algorithm in C++: \vspace{1em}
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
-    \begin{lstlisting}[language=C++, aboveskip=3mm,
-        belowskip=3mm,
-        showstringspaces=false,
-        columns=flexible,
-        basicstyle={\small\ttfamily},
-        numbers=left,
-        numberstyle=\tiny\color{gray},
-        keywordstyle=\color{blue},
-        commentstyle=\color{dkgreen},
-        stringstyle=\color{mauve},
-        breaklines=true,
-        breakatwhitespace=true,
-        tabsize=3,
-        xleftmargin=1em]
-
-#include "Vec2.h"
-#include <cmath>
-#include <iostream>
-
-struct Circle {
-    Vec2 center;
-    float radius;
-};
-
-bool pointInCircle(const Vec2 &point, const Circle &circle) {
-    const float dx = point.x - circle.center.x;
-    const float dy = point.y - circle.center.y;
-    const float distance = std::sqrt(dx * dx + dy * dy);
-    const bool inside = distance < circle.radius;
-
-    return inside;
-}
-
-int main() {
-    Circle circle = {{6, 6}, 3};
-    Vec2 point = {8, 6};
-
-    if (pointInCircle(point, circle)) {
-        std::cout << "Point lies within circle." << std::endl;
-    } else {
-        std::cout << "Point lies outside circle." << std::endl;
-    }
-
-    return 0;
-}
-
-\end{lstlisting}
+    \lstinputlisting[language=C++]{code-examples/PointInCircle.cpp}
 \end{mdframed}
 
 \subsection{Bounding Circle Intersection}
@@ -254,53 +208,7 @@ the two circles intersect.
 Here is an implementation of the collision detection algorithm in C++:
 \vspace{1em}
 \begin{mdframed}[linecolor=black!30!white,linewidth=.5pt,extratopheight=3em]
-    \begin{lstlisting}[language=C++, aboveskip=3mm,
-        belowskip=3mm,
-        showstringspaces=false,
-        columns=flexible,
-        basicstyle={\small\ttfamily},
-        numbers=left,
-        numberstyle=\tiny\color{gray},
-        keywordstyle=\color{blue},
-        commentstyle=\color{dkgreen},
-        stringstyle=\color{mauve},
-        breaklines=true,
-        breakatwhitespace=true,
-        tabsize=3,
-        xleftmargin=1em]
-#include "Vec2.h"
-#include <cmath>
-#include <iostream>
-
-struct Circle {
-    Vec2 center;
-    float radius;
-};
-
-bool checkCollision(const Circle &c1, const Circle &c2) {
-    const float dx = c2.center.x - c1.center.x;
-    const float dy = c2.center.y - c1.center.y;
-    const float distance = std::sqrt(dx * dx + dy * dy);
-    const float sumOfRadii = c1.radius + c2.radius;
-    const bool collision = distance < sumOfRadii;
-
-    return collision;
-}
-
-int main() {
-    Circle c1 = {{5, 4}, 2};
-    Circle c2 = {{7, 7}, 3};
-
-    if (checkCollision(c1, c2)) {
-        std::cout << "Collision detected!" << std::endl;
-    } else {
-        std::cout << "No collision detected." << std::endl;
-    }
-
-    return 0;
-}
-\end{lstlisting}
-
+    \lstinputlisting[language=C++]{code-examples/CircleCircleCollision.cpp}
 \end{mdframed}
 
 \newpage

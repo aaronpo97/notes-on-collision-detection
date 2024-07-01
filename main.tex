@@ -1,5 +1,6 @@
 \documentclass{report}
 
+\usepackage{lipsum}
 % Geometry and layout
 \usepackage[margin=3.3cm]{geometry}
 \usepackage[skip=10pt plus1pt, indent=0em]{parskip}
@@ -30,6 +31,28 @@
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstdefinestyle{mystyle}{
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+    xleftmargin=1em
+}
+
+\lstset{style=mystyle}
+
+\usepackage{sourcecodepro}
+\usepackage[T1]{fontenc}
+\lstset{basicstyle=\ttfamily}
 
 % Frames and boxes
 \usepackage{mdframed}
@@ -84,11 +107,12 @@
 \author{Aaron Po}
 \title{Collision Detection and Collision Resolution}
 \date{\today}
+
 \begin{document}
 \maketitle
-
 \tableofcontents
 \include{01-CollisionDetection/index.tex}
 \include{02-Entity-Bounding-Shapes/index.tex}
+\include{03-Collision-Resolution/index.tex}
 \include{Appendix/index.tex}
 \end{document}
