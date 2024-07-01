@@ -1,8 +1,42 @@
 \section{Axis Aligned Bounding Boxes (AABB)}
 In 2D games, objects are often enclosed in rectangles known as bounding boxes.
 These are usually the smallest possible rectangle that completely encompasses
-the texture's width and height. However, this is not always the case, as some
-imperfections may exist such as the entity being larger than the bounding box.
+the texture's width and height.
+
+However, imperfections can occur, such as the entity being larger than the
+bounding box. For instance, consider Mario and Megaman: Mario's standing pose
+fits perfectly within the bounding box, while Megaman's shooting pose extends
+slightly beyond the bounding box. These imperfections are typically acceptable
+as long as they are not too noticeable. In a game running at a high framerate
+with fast movement, these imperfections are often overlooked.
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
+                \drawaxesgrid{18}{9}
+
+                % Adjust the size of Mario to fit within the rectangle
+                \node[] (mario) at (4.5, 5)
+                {\includegraphics[width=3.37em, height=4.5em]{mario.png}};
+
+                % Draw the rectangle
+                \draw [black, dashed] (3, 3) rectangle (6,7);
+                % Label the corners of the rectangle
+                \filldraw [black] (3, 3) circle (4pt) node[anchor=north east] {$c_1$};
+
+                \node[] (megaman) at (12, 5)
+                {\includegraphics[height=4.6em]{megaman.png}};
+
+                \draw [black, dashed] (10, 3) rectangle (14, 7);
+                \filldraw [black] (10, 3) circle (4pt) node[anchor=north east] {$c_2$};
+
+            \end{scope}
+        \end{tikzpicture}
+    \end{center}
+
+    \caption{Bounding Boxes for Mario and Megaman}
+\end{figure}
 
 Rectangles can be oriented in any direction as long as all four sides meet at
 90-degree angles. This creates complexity in collision detection, requiring
