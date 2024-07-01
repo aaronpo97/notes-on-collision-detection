@@ -1,14 +1,25 @@
 \section{Axis Aligned Bounding Boxes (AABB)}
-In 2D games, objects are often enclosed in rectangles known as bounding boxes.
-These are usually the smallest possible rectangle that completely encompasses
-the texture's width and height.
+In 2D games, objects are often enclosed within rectangles designed to encompass
+their width and height, facilitating straightforward collision detection.
+Axis-aligned bounding boxes (AABBs) are a specific type of bounding rectangle
+used to simplify collision detection between rectangles. Unlike rectangles that
+can be oriented in various directions, AABBs are aligned parallel to the $x$
+and $y$ axes. This alignment streamlines collision detection algorithms,
+allowing us to use simple geometric calculations to determine if two AABBs
+intersect.
 
-However, imperfections can occur, such as the entity being larger than the
-bounding box. For instance, consider Mario and Megaman: Mario's standing pose
-fits perfectly within the bounding box, while Megaman's shooting pose extends
-slightly beyond the bounding box. These imperfections are typically acceptable
-as long as they are not too noticeable. In a game running at a high framerate
-with fast movement, these imperfections are often overlooked.
+While AABBs typically encompass the entire width and height of an object, there
+are exceptions where the object's image may exceed or be smaller than the
+bounding box. This situation is common in animation, where a consistent image
+size is used across frames, potentially resulting in sprites that extend beyond
+the box's boundaries. Despite these imperfections, which are generally
+acceptable in animation, the bounding box is sized to encompass the entire
+image.
+
+For example, Mario's standing pose neatly fits within his bounding box, whereas
+Megaman's shooting pose extends beyond its boundaries. These variations
+highlight how bounding boxes accommodate diverse shapes and sizes in 2D game
+design.
 
 \begin{figure}[H]
     \begin{center}
@@ -37,13 +48,6 @@ with fast movement, these imperfections are often overlooked.
 
     \caption{Bounding Boxes for Mario and Megaman}
 \end{figure}
-
-Rectangles can be oriented in any direction as long as all four sides meet at
-90-degree angles. This creates complexity in collision detection, requiring
-calculations for line-line intersections. To simplify this, we can use
-something called an axis-aligned bounding box (AABB). An AABB is a rectangle
-that is aligned with the x and y axes, i.e. with sides parallel to the
-coordinate axes.
 
 \subsection{Point and AABB Intersection}
 
