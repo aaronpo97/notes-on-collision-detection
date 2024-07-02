@@ -1,2 +1,22 @@
 \chapter{Collision Resolution}
-\lipsum[1-4]
+In the next chapter, we will discuss collision resolution. Collision resolution
+involves determining the outcome when two entities collide. This can include
+adjusting their velocities, positions, or even removing them from the
+simulation. Throughout this chapter, we will explore different methods of
+collision resolution and how they can be implemented in a game engine.
+
+Before diving into collision resolution, it's important to understand the
+concept of an Entity. An Entity is an object within the game world that
+consists of various components, such as its transform (position, rotation,
+scale, velocity), bounding shape (circle, rectangle), and other properties like
+its name. In this chapter, our focus will be on resolving collisions between
+entities based on their bounding shapes.
+
+\section{Circle-Circle Collision Resolution}
+In the previous chapter, we discussed how to detect collisions between two
+circles. In this section, we will explore how to resolve these collisions.
+
+When two circles collide in a game, we can adjust their velocities to simulate
+the effect of the collision. A simple way to do this is to simply reverse the
+direction of the velocity vector for each circle. This will cause the circles
+to bounce off each other.

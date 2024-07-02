@@ -20,3 +20,5 @@
 main.fdb_latexmk
 main.fls
 main.synctex.gz
+
+code-examples/dependencies
