@@ -154,6 +154,10 @@ intersect by comparing this distance to the sum of their radii.
         \begin{tikzpicture}
             \begin{scope}[yscale=-1, yshift=-5cm, xshift=5cm, scale=0.4]
                 \drawaxesgrid{12}{12}
+
+                % Draw triangle representing dx, dy, d
+                \draw [red, dashed] (5, 4) -- (5, 7) -- (7, 7) -- cycle;
+
                 % First circle
                 \draw [black, thick] (5, 4) circle (2);
                 % a point at the center of the first circle
@@ -163,12 +167,9 @@ intersect by comparing this distance to the sum of their radii.
                 % a point at the center of the second circle
                 \filldraw [black] (7, 7) circle (4pt) node[anchor=north east] {$c_2$};
 
-                % Draw triangle representing dx, dy, d
-                \draw [red, dashed] (5, 4) -- (5, 7) -- (7, 7) -- cycle;
-
                 % Label dx, dy, d
                 \node [red, anchor=east] at (5, 5.5) {\tiny $d_y$};
-                \node [red, anchor=north] at (6, 7) {\tiny $d_x$};
+                \node [red, anchor=south] at (6, 7) {\tiny $d_x$};
                 \node [red, anchor=south] at (6, 5.5) {\tiny $d$};
 
             \end{scope}
