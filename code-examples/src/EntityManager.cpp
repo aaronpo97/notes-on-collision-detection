@@ -1,26 +1,8 @@
-#include "Entity.h"
-#include <memory>
 
-// Store all entity objects in a vector.
-typedef std::vector<std::shared_ptr<Entity>> EntityVector;
+#include "../includes/EntityManager.h"
+#include "../includes/Tags.h"
 
-// Store separate vectors of Entity objects by their tag for quick
-// retrieval.
-typedef std::map<std::string, EntityVector> EntityMap;
-
-class EntityManager {
-  EntityVector m_entities;
-  EntityVector m_toAdd;
-  EntityMap    m_entityMap;
-  size_t       m_totalEntities = 0;
-
-public:
-  EntityManager();
-  std::shared_ptr<Entity> addEntity(const std::string &tag);
-  EntityVector           &getEntities();
-  EntityVector           &getEntities(const std::string &tag);
-  void                    update();
-};
+#include <iostream>
 
 EntityManager::EntityManager() :
     m_totalEntities(0) {}
