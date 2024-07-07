@@ -16,7 +16,20 @@ entities based on their bounding shapes.
 In the previous chapter, we discussed how to detect collisions between two
 circles. In this section, we will explore how to resolve these collisions.
 
-When two circles collide in a game, we can adjust their velocities to simulate
-the effect of the collision. A simple way to do this is to simply reverse the
-direction of the velocity vector for each circle. This will cause the circles
-to bounce off each other.
+\subsection{Adjusting Velocities}
+When two entity circles collide in a game, we can adjust their velocities to
+simulate the effect of the collision. A simple way to do this is to simply
+reverse the direction of the velocity vector for each circle.
+
+Assume the two entities have a velocity vector $v_1$ and $v_2$, respectively.
+After the collision, we can update their velocities as follows:
+\begin{equation}
+    \begin{aligned}
+        v_1 & = v_1 * -1  \\
+        v_2 & = -v_2 * -1
+    \end{aligned}
+\end{equation}
+
+This will cause the two circles to bounce off each other in the opposite
+direction.
+

@@ -2,16 +2,26 @@
 #include <iostream>
 
 struct AABB {
-  Vec2  c;
+  Vec2  topLeft;
   float width;
   float height;
 };
 
 bool checkPointInAABB(const Vec2 &point, const AABB &rect) {
-  const bool pointInAABB =
-      point.x > rect.c.x && point.x < rect.c.x + rect.width &&
-      point.y > rect.c.y && point.y < rect.c.y + rect.height;
 
+  const bool pointXCoordIsRightOfLeftEdge = point.x > rect.topLeft.x;
+
+  const bool pointXCoordIsLeftOfRightEdge =
+      point.x < rect.topLeft.x + rect.width;
+
+  const bool pointYCoordIsBelowTopEdge = point.y > rect.topLeft.y;
+
+  const bool pointYCoordIsAboveBottomEdge =
+      point.y < rect.topLeft.y + rect.height;
+
+  const bool pointInAABB =
+      pointXCoordIsRightOfLeftEdge && pointXCoordIsLeftOfRightEdge &&
+      pointYCoordIsBelowTopEdge && pointYCoordIsAboveBottomEdge;
   return pointInAABB;
 }
 

@@ -22,3 +22,5 @@ main.fls
 main.synctex.gz
 
 code-examples/dependencies
+code-examples/bin
+code-examples/objects

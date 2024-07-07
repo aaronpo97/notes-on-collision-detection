@@ -1,7 +1,5 @@
 
-#include "Entity.h"
-#include "Components.h"
-#include "Vec2.h"
+#include "../includes/Entity.h"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <string>
@@ -19,4 +17,8 @@ size_t Entity::getId() const {
 
 void Entity::destroy() {
   m_active = false;
+}
+
+bool Entity::isActive() const {
+  return m_active;
 }
